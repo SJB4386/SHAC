@@ -147,7 +147,12 @@ public class SHACClient extends Thread
 
 	public static void main(String[] args)
 	{
-    	SHACClient s = new SHACClient();
+	    SHACClient s;
+	    if (args.length == 0) {
+	        s = new SHACClient();
+	    } else {
+	        s  = new SHACClient(args[0]);
+	    }
     	s.runClient();
     }
 

@@ -23,23 +23,22 @@ public class SHACPeer extends Thread {
 	private Random rand;
 	private DatagramSocket socket;
 	public ArrayList<SHACNode> nodes;
-	public String firstPeer;
 	
 	
 	public SHACPeer()
 	{
-		firstPeer = "localhost";
 		initializeClient();
 	}
 	
-	public SHACPeer(String firstPeer)
+	public SHACPeer(String[] firstPeers)
 	{
-		this.firstPeer = firstPeer;
 		initializeClient();
-		try {
-			nodes.add(new SHACNode (InetAddress.getByName(firstPeer), new Date()));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
+		for (String peer : firstPeers) {
+    		try {
+    			nodes.add(new SHACNode (InetAddress.getByName(peer), new Date()));
+    		} catch (UnknownHostException e) {
+    			e.printStackTrace();
+    		}
 		}
 	}
 	
@@ -220,8 +219,14 @@ public class SHACPeer extends Thread {
 
 	public static void main(String[] args)
 	{
-    	SHACPeer s = new SHACPeer();
-    	s.runPeer();
+    	SHACPeer s;
+        if (args.length == 0) {
+            s = new SHACPeer();
+        } else {
+            s  = new SHACPeer(args);
+        }
+        s.runPeer();
+
     }
 
 }
