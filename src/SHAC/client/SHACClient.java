@@ -2,17 +2,19 @@ package SHAC.client;
 
 import java.io.IOException;
 import java.net.*;
-
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import SHAC.protocol.*;
 
 
 public class SHACClient extends Thread {
 	
-	Timer timer;
-	Random rand;
-	DatagramSocket socket;
+	private Timer timer;
+	private Random rand;
+	private DatagramSocket socket;
+	public ArrayList<SHACNode> nodes;
 	
 	
 	public SHACClient() {
@@ -35,7 +37,7 @@ public class SHACClient extends Thread {
 
 	public void run() {
 		// TODO listen for availability updates
-		
+		listenForUpdates();
 		
 	}
 	
@@ -55,7 +57,7 @@ public class SHACClient extends Thread {
         {
             InetAddress IPAddress = InetAddress.getByName("localhost");
             String sentence = "Hello";
-            byte[] data = sentence.getBytes();
+            byte[] data = SHACProtocol.encodePacketData();
             DatagramPacket sendPacket = new DatagramPacket(data, data.length, IPAddress, 9876);
             socket.send(sendPacket);
             System.out.println("Message sent from client");
@@ -74,16 +76,16 @@ public class SHACClient extends Thread {
         }
 	}
     
-    public void createAndListenSocket() 
+    public void listenForUpdates() 
     {
         try 
         {
             byte[] incomingData = new byte[1024];
-            System.out.println("Message sent from client");
             DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
             socket.receive(incomingPacket);
-            String response = new String(incomingPacket.getData());
-            System.out.println("Response from server:" + response);
+            SHACData data = SHACProtocol.decodePacketData(incomingPacket.getData());
+            nodes = data.nodes;
+            System.out.println("Received availability update from server.");
             socket.close();
         }
         catch (UnknownHostException e) 
@@ -100,9 +102,20 @@ public class SHACClient extends Thread {
         }
     }
     
-    public void getAvailableNodes() {
-    	// TODO Return status of each node. Change return type to what's appropriate
-    	
+    public void printAvailableNodes() {
+    	// Return status of each node. Change return type to what's appropriate
+    	System.out.println("Available nodes:");
+    	for (SHACNode n : (SHACNode[]) nodes.toArray()) {
+    		System.out.println(n.ip.toString() + " last checked in " + n.timestamp.toString());
+    		if (n.isAvailable)
+    		{
+        		System.out.println(n.ip.toString() + " is available.");
+    		}
+    		else
+    		{
+        		System.out.println(n.ip.toString() + " is unavailable.");
+    		}
+    	}
     }
 
 	public static void main(String[] args) {
