@@ -71,7 +71,7 @@ public class SHACClient extends Thread
 	
     private void sendUpdate()
     {
-		// TODO Send a packet to greet server
+		// Send a packet to greet server
     	try 
         {
             InetAddress IPAddress = InetAddress.getByName(serverIP);
