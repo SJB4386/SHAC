@@ -34,6 +34,7 @@ public class SHACClient extends Thread
 	{
 		timer = new Timer();
 		rand = new Random();
+		nodes = new ArrayList<SHACNode>();
 		try 
         {
             socket = new DatagramSocket();
