@@ -60,15 +60,53 @@ public class SHACPeer extends Thread {
 	
 	private void runPeer()
 	{
+		int secondsTilDeadNode = 30;
 		start();
 		startSendingUpdates();
-		//Start timer for checking timestamps and removing nodes
+		// Start the first timer for checking time-stamps and removing nodes
+		timer.schedule(new TimerTask()
+		{
+		  public void run()
+		  {
+		    pruneDeadNodes(secondsTilDeadNode);
+		  }
+		}, secondsTilDeadNode * 1000);
 
 	}
 
 	public void run()
 	{
 		listenForUpdates();
+	}
+	
+	private void pruneDeadNodes(int secondsTilDeadNode)
+	{
+		timer.schedule(new TimerTask()
+		{
+		  public void run()
+		  {
+		    pruneDeadNodes(secondsTilDeadNode);
+		  }
+		}, secondsTilDeadNode * 1000);
+		
+		boolean listChanged = false;
+		for (SHACNode node : (SHACNode[]) nodes.toArray())
+		{
+			if (new Date().getTime() - node.timestamp.getTime() > (secondsTilDeadNode * 1000))
+			{
+				if (node.isAvailable)
+				{
+					listChanged = true;
+				}
+				node.isAvailable = false;
+			}
+		}
+		
+		if (listChanged)
+		{
+			sendUpdates();
+		}
+		
 	}
 	
 	private void startSendingUpdates()
