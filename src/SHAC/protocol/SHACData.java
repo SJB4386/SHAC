@@ -11,5 +11,7 @@ public class SHACData {
     public SHACData(int nodeCount, NodeType nodeTypeFlag) {
         this.nodeCount = nodeCount;
         this.nodeTypeFlag = nodeTypeFlag;
+        if(nodeCount > 0)
+            nodes = new ArrayList<SHACNode>();
     }
 }

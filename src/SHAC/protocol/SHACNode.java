@@ -9,6 +9,8 @@ public class SHACNode {
     public boolean isAvailable;
     
     public SHACNode(InetAddress ip, Date timestamp) {
-        
+        this.ip = ip;
+        this.timestamp = timestamp;
+        this.isAvailable = true;
     }
 }
