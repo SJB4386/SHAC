@@ -12,10 +12,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import SHAC.protocol.NodeType;
-import SHAC.protocol.SHACData;
-import SHAC.protocol.SHACNode;
-import SHAC.protocol.SHACProtocol;
+import SHAC.protocol.*;
 
 public class SHACPeer extends Thread {
 
@@ -25,11 +22,11 @@ public class SHACPeer extends Thread {
     public ArrayList<SHACNode> nodes;
 
     public SHACPeer() {
-        initializeClient();
+        initializePeer();
     }
 
     public SHACPeer(String[] firstPeers) {
-        initializeClient();
+        initializePeer();
         for (String peer : firstPeers) {
             try {
                 nodes.add(new SHACNode(InetAddress.getByName(peer), new Date()));
@@ -39,7 +36,7 @@ public class SHACPeer extends Thread {
         }
     }
 
-    private void initializeClient() {
+    private void initializePeer() {
         timer = new Timer();
         rand = new Random();
         nodes = new ArrayList<SHACNode>();
@@ -165,12 +162,7 @@ public class SHACPeer extends Thread {
         // Return status of each node. Change return type to what's appropriate
         System.out.println("Available nodes:");
         for (SHACNode n : (SHACNode[]) nodes.toArray()) {
-            System.out.println(n.ip.toString() + " last checked in " + n.timestamp.toString());
-            if (n.isAvailable) {
-                System.out.println(n.ip.toString() + " is available.");
-            } else {
-                System.out.println(n.ip.toString() + " is unavailable.");
-            }
+            System.out.println(n.toString());
         }
     }
 
