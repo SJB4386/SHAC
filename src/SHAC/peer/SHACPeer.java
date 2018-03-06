@@ -48,7 +48,8 @@ public class SHACPeer extends Thread {
     }
 
     private void runPeer() {
-        int secondsTilDeadNode = 30;
+        final int secondsTilDeadNode = 30;
+        //Launch update listening thread
         start();
         startSendingUpdates();
         // Start the first timer for checking time-stamps and removing nodes
