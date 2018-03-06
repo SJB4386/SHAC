@@ -29,7 +29,7 @@ public class SHACProtocolTest {
     public void testEncodePacketDataWithNode() throws UnknownHostException {
         SHACData testData = new SHACData(1, NodeType.SERVER);
         SHACNode testNode = new SHACNode(InetAddress.getByName("192.168.0.1"), new Date(1520312475950L));
-        testData.nodes.add(testNode);
+        testData.dataNodes.add(testNode);
         byte[] actualPacketData = SHACProtocol.encodePacketData(testData);
         byte[] expectedPacketData = {83, 72, 67, 49, 46, 48, 1, 2, 
                                         (byte) 192, (byte) 168, 0, 1,
@@ -76,13 +76,13 @@ public class SHACProtocolTest {
                             1};
         SHACData actualPacketData = SHACProtocol.decodePacketData(testData);
         SHACData expectedPacketData = new SHACData(1, NodeType.SERVER);
-        expectedPacketData.nodes.add(new SHACNode(InetAddress.getByName("192.168.0.1"), new Date(1520312475950L)));
+        expectedPacketData.dataNodes.add(new SHACNode(InetAddress.getByName("192.168.0.1"), new Date(1520312475950L)));
         assertEquals(expectedPacketData.version, actualPacketData.version);
         assertEquals(expectedPacketData.nodeCount, actualPacketData.nodeCount);
         assertEquals(expectedPacketData.nodeTypeFlag, actualPacketData.nodeTypeFlag);
-        assertEquals(expectedPacketData.nodes.get(0).ip.toString(), actualPacketData.nodes.get(0).ip.toString());
-        assertEquals(expectedPacketData.nodes.get(0).timestamp.getTime(), actualPacketData.nodes.get(0).timestamp.getTime());
-        assertEquals(expectedPacketData.nodes.get(0).isAvailable, actualPacketData.nodes.get(0).isAvailable);
+        assertEquals(expectedPacketData.dataNodes.get(0).ip.toString(), actualPacketData.dataNodes.get(0).ip.toString());
+        assertEquals(expectedPacketData.dataNodes.get(0).timestamp.getTime(), actualPacketData.dataNodes.get(0).timestamp.getTime());
+        assertEquals(expectedPacketData.dataNodes.get(0).isAvailable, actualPacketData.dataNodes.get(0).isAvailable);
     }
     
     @Test
