@@ -61,7 +61,7 @@ public class SHACClient extends Thread {
             InetAddress IPAddress = InetAddress.getByName(serverIP);
             SHACData update = new SHACData(0, NodeType.CLIENT);
             byte[] data = SHACProtocol.encodePacketData(update);
-            DatagramPacket sendPacket = new DatagramPacket(data, data.length, IPAddress, 9876);
+            DatagramPacket sendPacket = new DatagramPacket(data, data.length, IPAddress, SHACProtocol.SHAC_SOCKET);
             socket.send(sendPacket);
             System.out.println("Message sent from client");
         } catch (UnknownHostException e) {

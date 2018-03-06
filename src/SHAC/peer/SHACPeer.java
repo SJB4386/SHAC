@@ -105,7 +105,7 @@ public class SHACPeer extends Thread {
                 SHACData update = new SHACData(nodes.size(), NodeType.PEER);
                 update.nodes = nodes;
                 byte[] data = SHACProtocol.encodePacketData(update);
-                DatagramPacket sendPacket = new DatagramPacket(data, data.length, node.ip, 9876);
+                DatagramPacket sendPacket = new DatagramPacket(data, data.length, node.ip, SHACProtocol.SHAC_SOCKET);
                 socket.send(sendPacket);
                 System.out.println("Message sent from client");
             } catch (UnknownHostException e) {
