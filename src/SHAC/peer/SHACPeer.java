@@ -148,7 +148,6 @@ public class SHACPeer extends Thread {
                     sendUpdates();
                 }
                 System.out.println("Received availability update from server.");
-                socket.close();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             } catch (SocketException e) {

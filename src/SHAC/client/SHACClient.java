@@ -84,7 +84,6 @@ public class SHACClient extends Thread {
                     nodes = data.nodes;
                 }
                 System.out.println("Received availability update from server.");
-                socket.close();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             } catch (SocketException e) {
