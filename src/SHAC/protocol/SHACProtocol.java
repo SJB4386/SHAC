@@ -1,11 +1,22 @@
 package SHAC.protocol;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Date;
+
 public class SHACProtocol {
     public static final byte[] AVAILABLE = {1};
     public static final byte[] UNAVAILABLE = {0};
+    public static final int VER_FIELD_LENGTH = 6;
+    public static final int NODE_COUNT_LENGTH = 1;
+    public static final int FLAG_FIELD_LENGTH = 1;
+    public static final int IP_LENGTH = 4;
+    public static final int TIMESTAMP_LENGTH = 8;
 
     public static byte[] encodePacketData(SHACData packetData) {
-        byte[] encodedVer = SHACData.VERSION.getBytes();
+        byte[] encodedVer = SHACData.CURRENT_VERSION.getBytes();
         byte[] encodedLength = { (byte) packetData.nodeCount };
         byte[] encodedPacket = combineByteArrays(encodedVer, encodedLength);
         encodedPacket = combineByteArrays(encodedPacket, packetData.nodeTypeFlag.getFlag());
@@ -25,7 +36,52 @@ public class SHACProtocol {
     }
 
     public static SHACData decodePacketData(byte[] packetData) {
-        return null;
+        SHACData decodedPacket;
+        int packetDataIndex = 0;
+        byte[] ver = Arrays.copyOfRange(packetData, packetDataIndex, VER_FIELD_LENGTH);
+        packetDataIndex += VER_FIELD_LENGTH;
+        int nodeCount = packetData[packetDataIndex];
+        packetDataIndex += NODE_COUNT_LENGTH;
+        int flags = packetData[packetDataIndex];
+        NodeType nodeType;
+        switch (flags) {
+            case 1:
+                nodeType = NodeType.CLIENT;
+                break;
+            case 2:
+                nodeType = NodeType.SERVER;
+                break;
+            case 4:
+                nodeType = NodeType.PEER;
+                break;
+            default:
+                nodeType = null;
+                break;
+        }
+        packetDataIndex += FLAG_FIELD_LENGTH;
+        
+        decodedPacket = new SHACData(nodeCount, nodeType);
+        decodedPacket.setVersion(new String(ver, StandardCharsets.UTF_8));
+        InetAddress nodeAddress;
+        Date nodeTimestamp;
+        boolean nodeAvailability;
+        for(int i = 0; i < nodeCount; i++) {
+            try {
+                nodeAddress = InetAddress.getByAddress(Arrays.copyOfRange(packetData, packetDataIndex, packetDataIndex + IP_LENGTH));
+                packetDataIndex += IP_LENGTH;
+                nodeTimestamp = new Date(bytesToLong(Arrays.copyOfRange(packetData, packetDataIndex, packetDataIndex + TIMESTAMP_LENGTH)));
+                packetDataIndex += TIMESTAMP_LENGTH;
+                if(packetData[packetDataIndex] > 0) 
+                    nodeAvailability = true;
+                else
+                    nodeAvailability = false;
+                decodedPacket.nodes.add(new SHACNode(nodeAddress, nodeTimestamp));
+                decodedPacket.nodes.get(i).isAvailable = nodeAvailability;
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        }
+        return decodedPacket;
     }
 
     /**
@@ -40,28 +96,28 @@ public class SHACProtocol {
         return combined;
     }
 
-    /*
+    /**
      * Method found here: 
      * https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java/29132118#29132118
      */
-    public static byte[] longToBytes(long l) {
-        byte[] result = new byte[8];
-        for (int i = 7; i >= 0; i--) {
-            result[i] = (byte) (l & 0xFF);
-            l >>= 8;
+    public static byte[] longToBytes(long inputLong) {
+        byte[] result = new byte[Long.BYTES];
+        for (int i = Byte.SIZE - 1; i >= 0; i--) {
+            result[i] = (byte) (inputLong & 0xFF);
+            inputLong >>= Byte.SIZE;
         }
         return result;
     }
 
-    /*
+    /**
      * Method found here: 
      * https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java/29132118#29132118
      */
-    public static long bytesToLong(byte[] b) {
+    public static long bytesToLong(byte[] inputBytes) {
         long result = 0;
         for (int i = 0; i < 8; i++) {
             result <<= 8;
-            result |= (b[i] & 0xFF);
+            result |= (inputBytes[i] & 0xFF);
         }
         return result;
     }
