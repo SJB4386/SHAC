@@ -23,7 +23,7 @@ public class SHACProtocol {
         encodedPacket = combineByteArrays(encodedPacket, packetData.nodeTypeFlag.getFlag());
         if (packetData.nodeCount > 0) {
             byte[] nodeData;
-            for (SHACNode node : packetData.nodes) {
+            for (SHACNode node : packetData.dataNodes) {
                 nodeData = node.ip.getAddress();
                 nodeData = combineByteArrays(nodeData, longToBytes(node.timestamp.getTime()));
                 if(node.isAvailable)
@@ -76,8 +76,8 @@ public class SHACProtocol {
                     nodeAvailability = true;
                 else
                     nodeAvailability = false;
-                decodedPacket.nodes.add(new SHACNode(nodeAddress, nodeTimestamp));
-                decodedPacket.nodes.get(i).isAvailable = nodeAvailability;
+                decodedPacket.dataNodes.add(new SHACNode(nodeAddress, nodeTimestamp));
+                decodedPacket.dataNodes.get(i).isAvailable = nodeAvailability;
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
