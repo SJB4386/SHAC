@@ -26,4 +26,10 @@ public class SHACNode {
                 isAvailable);
         return formattedNode;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+        SHACNode node = (SHACNode) o;
+        return this.ip.equals(node.ip);
+    }
 }
