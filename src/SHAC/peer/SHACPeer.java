@@ -44,7 +44,7 @@ public class SHACPeer extends Thread {
         rand = new Random();
         nodes = new ArrayList<SHACNode>();
         try {
-            socket = new DatagramSocket();
+            socket = new DatagramSocket(SHACProtocol.SHAC_SOCKET);
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -138,7 +138,7 @@ public class SHACPeer extends Thread {
                         schedulePrune(receivedNode);
                     }
                 }
-                if (!listChanged) {
+                if (listChanged) {
                     sendUpdates();
                 }
                 System.out.println("Received availability update from server.");
