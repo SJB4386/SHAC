@@ -30,7 +30,7 @@ public class SHACClient extends Thread {
         rand = new Random();
         nodes = new ArrayList<SHACNode>();
         try {
-            socket = new DatagramSocket();
+            socket = new DatagramSocket(SHACProtocol.SHAC_SOCKET);
         } catch (SocketException e) {
             e.printStackTrace();
         }
