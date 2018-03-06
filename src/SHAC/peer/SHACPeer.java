@@ -20,6 +20,9 @@ public class SHACPeer extends Thread {
     private Random rand;
     private DatagramSocket socket;
     public ArrayList<SHACNode> nodes;
+    
+    private static final int secondsTilDeadNode = 30;
+
 
     public SHACPeer() {
         initializePeer();
@@ -48,44 +51,34 @@ public class SHACPeer extends Thread {
     }
 
     private void runPeer() {
-        final int secondsTilDeadNode = 30;
         //Launch update listening thread
         start();
         startSendingUpdates();
-        // Start the first timer for checking time-stamps and removing nodes
-        timer.schedule(new TimerTask() {
-            public void run() {
-                pruneDeadNodes(secondsTilDeadNode);
-            }
-        }, secondsTilDeadNode * 1000);
-
     }
 
     public void run() {
         listenForUpdates();
-    }
-
-    private void pruneDeadNodes(int secondsTilDeadNode) {
+    }    
+    
+    private void schedulePrune(SHACNode node) {
         timer.schedule(new TimerTask() {
             public void run() {
-                pruneDeadNodes(secondsTilDeadNode);
+                pruneNode(node);
             }
         }, secondsTilDeadNode * 1000);
-
-        boolean listChanged = false;
-        for (SHACNode node : nodes) {
-            if (new Date().getTime() - node.timestamp.getTime() > (secondsTilDeadNode * 1000)) {
-                if (node.isAvailable) {
-                    listChanged = true;
-                }
-                node.isAvailable = false;
+    }
+    
+    private void pruneNode(SHACNode node) {
+        boolean changed = false;
+        if (new Date().getTime() - node.timestamp.getTime() >= (secondsTilDeadNode * 1000)) {
+            if (node.isAvailable) {
+                changed = true;
             }
+            node.isAvailable = false;
         }
-
-        if (listChanged) {
+        if (changed) {
             sendUpdates();
         }
-
     }
 
     private void startSendingUpdates() {
@@ -132,16 +125,17 @@ public class SHACPeer extends Thread {
                 boolean listChanged = false;
                 if (data.nodeTypeFlag == NodeType.PEER) {
                     for (SHACNode receivedNode : data.dataNodes) {
-                        if (!nodes.contains(receivedNode)) {
-                            this.nodes.add(receivedNode);
-                            listChanged = true;
-                        } else {
+                        if (nodes.contains(receivedNode)) {
                             SHACNode oldNode = this.nodes.get(this.nodes.indexOf(receivedNode));
                             if (oldNode.isAvailable != receivedNode.isAvailable) {
                                 listChanged = true;
                             }
                             this.nodes.set(this.nodes.indexOf(oldNode), receivedNode);
+                        } else {
+                            this.nodes.add(receivedNode);
+                            listChanged = true;
                         }
+                        schedulePrune(receivedNode);
                     }
                 }
                 if (!listChanged) {
