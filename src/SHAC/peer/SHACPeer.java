@@ -73,7 +73,7 @@ public class SHACPeer extends Thread {
         }, secondsTilDeadNode * 1000);
 
         boolean listChanged = false;
-        for (SHACNode node : (SHACNode[]) nodes.toArray()) {
+        for (SHACNode node : nodes) {
             if (new Date().getTime() - node.timestamp.getTime() > (secondsTilDeadNode * 1000)) {
                 if (node.isAvailable) {
                     listChanged = true;
@@ -99,7 +99,7 @@ public class SHACPeer extends Thread {
     }
 
     private void sendUpdates() {
-        for (SHACNode node : (SHACNode[]) nodes.toArray()) {
+        for (SHACNode node : nodes) {
             // Send all known peers your full list of peers
             try {
                 SHACData update = new SHACData(nodes.size(), NodeType.PEER);
@@ -131,7 +131,7 @@ public class SHACPeer extends Thread {
 
                 boolean listChanged = false;
                 if (data.nodeTypeFlag == NodeType.PEER) {
-                    for (SHACNode newNode : (SHACNode[]) data.nodes.toArray()) {
+                    for (SHACNode newNode : data.nodes) {
                         if (!nodes.contains(newNode)) {
                             this.nodes.add(newNode);
                             listChanged = true;
@@ -162,7 +162,7 @@ public class SHACPeer extends Thread {
     public void printAvailableNodes() {
         // Return status of each node. Change return type to what's appropriate
         System.out.println("Available nodes:");
-        for (SHACNode n : (SHACNode[]) nodes.toArray()) {
+        for (SHACNode n : nodes) {
             System.out.println(n.toString());
         }
     }
