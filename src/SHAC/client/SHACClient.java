@@ -99,12 +99,7 @@ public class SHACClient extends Thread {
         // Return status of each node. Change return type to what's appropriate
         System.out.println("Available nodes:");
         for (SHACNode n : (SHACNode[]) nodes.toArray()) {
-            System.out.println(n.ip.toString() + " last checked in " + n.timestamp.toString());
-            if (n.isAvailable) {
-                System.out.println(n.ip.toString() + " is available.");
-            } else {
-                System.out.println(n.ip.toString() + " is unavailable.");
-            }
+            System.out.println(n.toString());
         }
     }
 
