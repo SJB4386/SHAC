@@ -131,16 +131,16 @@ public class SHACPeer extends Thread {
 
                 boolean listChanged = false;
                 if (data.nodeTypeFlag == NodeType.PEER) {
-                    for (SHACNode newNode : data.nodes) {
-                        if (!nodes.contains(newNode)) {
-                            this.nodes.add(newNode);
+                    for (SHACNode receivedNode : data.nodes) {
+                        if (!nodes.contains(receivedNode)) {
+                            this.nodes.add(receivedNode);
                             listChanged = true;
                         } else {
-                            SHACNode oldNode = this.nodes.get(this.nodes.indexOf(newNode));
-                            if (oldNode.isAvailable != newNode.isAvailable) {
+                            SHACNode oldNode = this.nodes.get(this.nodes.indexOf(receivedNode));
+                            if (oldNode.isAvailable != receivedNode.isAvailable) {
                                 listChanged = true;
                             }
-                            this.nodes.set(this.nodes.indexOf(oldNode), newNode);
+                            this.nodes.set(this.nodes.indexOf(oldNode), receivedNode);
                         }
                     }
                 }
