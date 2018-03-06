@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 public class SHACProtocol {
+    public static final int SHAC_SOCKET = 9746;
     public static final byte[] AVAILABLE = {1};
     public static final byte[] UNAVAILABLE = {0};
     public static final int VER_FIELD_LENGTH = 6;
