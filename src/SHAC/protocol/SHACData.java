@@ -7,14 +7,14 @@ public class SHACData {
     public String version;
     public int nodeCount;
     public NodeType nodeTypeFlag;
-    public ArrayList<SHACNode> nodes;
+    public ArrayList<SHACNode> dataNodes;
     
     public SHACData(int nodeCount, NodeType nodeTypeFlag) {
         this.version = CURRENT_VERSION;
         this.nodeCount = nodeCount;
         this.nodeTypeFlag = nodeTypeFlag;
         if(nodeCount > 0)
-            nodes = new ArrayList<SHACNode>();
+            dataNodes = new ArrayList<SHACNode>();
     }
     
     public void setVersion(String version) {
@@ -28,7 +28,7 @@ public class SHACData {
         formattedData += String.format("Node Type: %s\n", this.nodeTypeFlag.toString());
         if(nodeCount > 0) {
             formattedData += "Nodes:\n";
-            for(SHACNode node : this.nodes)
+            for(SHACNode node : this.dataNodes)
                 formattedData += String.format("%s\n", node.toString());
         }
         

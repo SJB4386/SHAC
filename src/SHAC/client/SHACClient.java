@@ -81,7 +81,7 @@ public class SHACClient extends Thread {
                 socket.receive(incomingPacket);
                 SHACData data = SHACProtocol.decodePacketData(incomingPacket.getData());
                 if (data.nodeTypeFlag == NodeType.SERVER) {
-                    nodes = data.nodes;
+                    nodes = data.dataNodes;
                 }
                 System.out.println("Received availability update from server.");
             } catch (UnknownHostException e) {

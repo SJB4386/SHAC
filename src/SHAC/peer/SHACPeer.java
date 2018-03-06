@@ -103,7 +103,7 @@ public class SHACPeer extends Thread {
             // Send all known peers your full list of peers
             try {
                 SHACData update = new SHACData(nodes.size(), NodeType.PEER);
-                update.nodes = nodes;
+                update.dataNodes = nodes;
                 byte[] data = SHACProtocol.encodePacketData(update);
                 DatagramPacket sendPacket = new DatagramPacket(data, data.length, node.ip, SHACProtocol.SHAC_SOCKET);
                 socket.send(sendPacket);
@@ -127,11 +127,11 @@ public class SHACPeer extends Thread {
                 SHACData data = SHACProtocol.decodePacketData(incomingPacket.getData());
 
                 SHACNode sender = new SHACNode(incomingPacket.getAddress(), new Date());
-                data.nodes.add(sender);
+                data.dataNodes.add(sender);
 
                 boolean listChanged = false;
                 if (data.nodeTypeFlag == NodeType.PEER) {
-                    for (SHACNode receivedNode : data.nodes) {
+                    for (SHACNode receivedNode : data.dataNodes) {
                         if (!nodes.contains(receivedNode)) {
                             this.nodes.add(receivedNode);
                             listChanged = true;
