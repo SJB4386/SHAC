@@ -16,7 +16,7 @@ import SHAC.protocol.*;
 
 public class SHACPeer extends Thread {
 
-    private Timer timer;
+    //private Timer timer;
     private Random rand;
     private DatagramSocket socket;
     public ArrayList<SHACNode> peerNodes;
@@ -44,7 +44,7 @@ public class SHACPeer extends Thread {
 
     private void initializePeer() {
         lastReceived = lastSent = new Date();
-        timer = new Timer();
+        //timer = new Timer();
         rand = new Random();
         peerNodes = new ArrayList<SHACNode>();
         try {
@@ -71,21 +71,43 @@ public class SHACPeer extends Thread {
         System.out.flush();
         printAvailableNodes();
 
-        timer = new Timer();
+        /*timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
                 schedulePrint();
             }
-        }, 5 * 1000);
+        }, 5 * 1000);*/
+        Thread thread = new Thread(){
+            public void run(){
+                try {
+                    sleep(5 * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                schedulePrint();
+            }
+          };
+        thread.start();
     }
     
     private void schedulePrune(SHACNode node) {
-        timer = new Timer();
+        /*timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
                 pruneNode(node);
             }
-        }, secondsTilDeadNode * 1000);
+        }, secondsTilDeadNode * 1000);*/
+        Thread thread = new Thread(){
+            public void run(){
+                try {
+                    sleep(secondsTilDeadNode * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                pruneNode(node);
+            }
+          };
+        thread.start();
     }
     
     private void pruneNode(SHACNode node) {
@@ -99,19 +121,28 @@ public class SHACPeer extends Thread {
         if (changed) {
             sendUpdates();
         }
-        timer.purge();
     }
 
     private void startSendingUpdates() {
         // Send an update to all peers, then set a timer to do it again
         sendUpdates();
-        timer = new Timer();
+        /*timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
                 startSendingUpdates();
             }
-        }, rand.nextInt(30) * 1000);
-        timer.purge();
+        }, rand.nextInt(30) * 1000);*/
+        Thread thread = new Thread(){
+            public void run(){
+                try {
+                    sleep(rand.nextInt(30) * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                startSendingUpdates();
+            }
+          };
+        thread.start();
     }
 
     private void sendUpdates() {
