@@ -32,7 +32,9 @@ public class SHACPeer extends Thread {
         initializePeer();
         for (String peer : firstPeers) {
             try {
-                peerNodes.add(new SHACNode(InetAddress.getByName(peer), new Date()));
+                SHACNode firstNode = new SHACNode(InetAddress.getByName(peer), new Date());
+                peerNodes.add(firstNode);
+                schedulePrune(firstNode);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
