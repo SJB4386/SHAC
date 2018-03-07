@@ -20,6 +20,7 @@ public class SHACPeer extends Thread {
     private Random rand;
     private DatagramSocket socket;
     public ArrayList<SHACNode> peerNodes;
+    public Date lastReceived, lastSent;
     
     private static final int secondsTilDeadNode = 30;
 
@@ -42,6 +43,7 @@ public class SHACPeer extends Thread {
     }
 
     private void initializePeer() {
+        lastReceived = lastSent = new Date();
         timer = new Timer();
         rand = new Random();
         peerNodes = new ArrayList<SHACNode>();
@@ -113,6 +115,7 @@ public class SHACPeer extends Thread {
     }
 
     private void sendUpdates() {
+        lastSent = new Date();
         SHACData update = null;
         for (SHACNode node : peerNodes) {
             // Send all known peers your full list of peers
@@ -158,6 +161,7 @@ public class SHACPeer extends Thread {
                     if (receivedNode.isAvailable) {
                         schedulePrune(receivedNode);
                     }
+                    lastReceived = new Date();
                 }
                 
                 if (listChanged) {
@@ -175,7 +179,8 @@ public class SHACPeer extends Thread {
 
     public void printAvailableNodes() {
         // Return status of each node. Change return type to what's appropriate
-        System.out.println("Available nodes:");
+        System.out.println("Last sent a packet at " + lastSent.toString() +".");
+        System.out.println("Available nodes as of " + lastReceived.toString() +":");
         for (SHACNode n : peerNodes) {
             System.out.println(n.toString());
         }
