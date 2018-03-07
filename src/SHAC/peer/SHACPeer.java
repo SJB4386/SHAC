@@ -20,12 +20,20 @@ public class SHACPeer extends Thread {
     public Date lastReceived, lastSent;
     
     private static final int secondsTilDeadNode = 30;
-
+    
+    /*
+     * SHACPeer() is a default object that initializes peer. 
+     */
 
     public SHACPeer() {
         initializePeer();
     }
 
+    /*
+     * SHACPeer(String[] firstPeers) initializes a SHACPeer
+     * which adds the first peer to the local peer's list 
+     * of peer nodes. 
+     */
     public SHACPeer(String[] firstPeers) {
         initializePeer();
         for (String peer : firstPeers) {
@@ -40,6 +48,12 @@ public class SHACPeer extends Thread {
         }
     }
 
+    /*
+     * initializePeer() creates the initializes all of the important fields for 
+     * the peer class. Most notably this is where SHACPeer intitializes the 
+     * DatagramSocket which is the UDP connection with the rest of the SHAC
+     * Network. 
+     */
     private void initializePeer() {
         lastReceived = lastSent = new Date();
         rand = new Random();
@@ -50,7 +64,12 @@ public class SHACPeer extends Thread {
             e.printStackTrace();
         }
     }
-
+    
+    /*
+     * runPeer() Launches the listening thread. This allows peer to act as a server as
+     * well as a client. runPeer() then begins sending updates to all of its peers and 
+     * prints out its own internal list using the scedulePrint() method.
+     */
     private void runPeer() {
         //Launch update listening thread
         start();
@@ -59,9 +78,20 @@ public class SHACPeer extends Thread {
         schedulePrint();
     }
 
+    /*
+     * run() is called whenever a new SHACPeer thread is created. 
+     * It runs the listenForUpdates() method. 
+     */
+    
     public void run() {
         listenForUpdates();
     }    
+    
+    /*
+     * schedulePrint() prints the list of nodes whenever there is a change as well as periodically. 
+     * The thread sleep in the try block is used to prevent a printing while the list of nodes is
+     * updating.  
+     */
     
     private void schedulePrint() {
         System.out.print("\n\n\n\n\n\n\n\n");
@@ -81,6 +111,12 @@ public class SHACPeer extends Thread {
         thread.start();
     }
     
+    /*
+     * shedulePrune(SHACNode node) is how the SHAC protocol determines when to declare a peer
+     * unavailable. schedulePrune also uses the list of nodes so it uses a sleep to prevent 
+     * race conditions. Note the actual pruning happens in pruneNode() not schedulePrune().  
+     */
+    
     private void schedulePrune(SHACNode node) {
         Thread thread = new Thread(){
             public void run(){
@@ -95,6 +131,13 @@ public class SHACPeer extends Thread {
         thread.start();
     }
     
+    /*
+     * pruneNode(SHACNode node) changes a node from available to unavailable. Weather 
+     * to prune or not is determined by the node's time stamp and the current time. If 
+     * the current time - the node's time is >= to 30 seconds then the node is declared 
+     * unavailable. 
+     */
+    
     private void pruneNode(SHACNode node) {
         boolean changed = false;
         if (new Date().getTime() - node.timestamp.getTime() >= (secondsTilDeadNode * 1000)) {
@@ -108,6 +151,12 @@ public class SHACPeer extends Thread {
         }
     }
 
+    /*
+     * startSendingUpdates() firsts calls sendUpdates to make sure all other peers are aware 
+     * of the local peer's availability. Then it schedules when to send the next update, a
+     * random interval between 0 and 30 seconds. 
+     */
+    
     private void startSendingUpdates() {
         // Send an update to all peers, then set a timer to do it again
         sendUpdates();
@@ -123,7 +172,13 @@ public class SHACPeer extends Thread {
           };
         thread.start();
     }
-
+    
+    /*
+     * sendUpdates() is how SHACPeers communicate that they are still alive as well as sending
+     * out lists of peers to other nodes. The list is then used to add new peers to the SHAC
+     * network. 
+     */
+    
     private void sendUpdates() {
         lastSent = new Date();
         SHACData update = null;
@@ -149,6 +204,13 @@ public class SHACPeer extends Thread {
             }
         }
     }
+    
+    /* 
+     * listenForUpdates() is how the peer works like a UDP server. listenForUpdates() begins a thread that readies for an incoming 
+     * packet of SHACData and waits to receive it. After receiving the data listenForUpdates then checks to see if an update has 
+     * occurred. If a changes has occurred then the list of peers is changed and the update is sent out to all other known peers. 
+     * 
+     */
 
     public void listenForUpdates() {
         while (true) {
@@ -193,6 +255,10 @@ public class SHACPeer extends Thread {
         }
     }
 
+    /*
+     * printAvailableNodes() prints the list of nodes that is contained in peerNodes. 
+     */
+    
     public void printAvailableNodes() {
         // Return status of each node. Change return type to what's appropriate
         System.out.println("Last sent a packet at " + lastSent.toString() +".");
