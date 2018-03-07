@@ -56,11 +56,26 @@ public class SHACPeer extends Thread {
         //Launch update listening thread
         start();
         startSendingUpdates();
+        //Periodically print list
+        schedulePrint();
     }
 
     public void run() {
         listenForUpdates();
     }    
+    
+    private void schedulePrint() {
+        System.out.print("\n\n\n\n\n\n\n\n");
+        System.out.flush();
+        printAvailableNodes();
+
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                schedulePrint();
+            }
+        }, 5 * 1000);
+    }
     
     private void schedulePrune(SHACNode node) {
         timer = new Timer();
@@ -87,7 +102,6 @@ public class SHACPeer extends Thread {
 
     private void startSendingUpdates() {
         // Send an update to all peers, then set a timer to do it again
-        printAvailableNodes();
         sendUpdates();
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -108,7 +122,6 @@ public class SHACPeer extends Thread {
                 byte[] updateData = SHACProtocol.encodePacketData(update);
                 DatagramPacket sendPacket = new DatagramPacket(updateData, updateData.length, node.ip, SHACProtocol.SHAC_SOCKET);
                 socket.send(sendPacket);
-                System.out.printf("Sending:\n%s", update.toString());
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             } catch (SocketException e) {
@@ -150,7 +163,6 @@ public class SHACPeer extends Thread {
                 if (listChanged) {
                     sendUpdates();
                 }
-                System.out.println("Received availability update from server.");
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             } catch (SocketException e) {
