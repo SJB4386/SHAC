@@ -1,66 +1,66 @@
 package SHAC.server;
+
 import java.io.IOException;
 import java.util.Date;
-import java.net.*;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.net.*;
+import java.time.*;
 import SHAC.protocol.*;
 
-public class SHACServer extends Thread{
-	
+public class SHACServer extends Thread {
+
 	private String threadName;
-    private DatagramSocket socket;
-    public ArrayList<SHACNode> nodes;
-	
+	private DatagramSocket socket;
+	public ArrayList<SHACNode> nodes;
+
+	SHACServer(String command) {
+		threadName = command;
+	}
+
 	public void run() {
-		
+
 		System.out.println("Running " + threadName);
-		
-		if (threadName.equals("Server")){
+
+		if (threadName.equals("ServerStart")) {
 			createAndListenSocket();
 		}
-		
+
+		if (threadName.equals("TimerChecker")) {
+			createAndRunTimerChecker();
+		}
 	}
-	
-	SHACServer(){ 
-		initializeServer();
-	}
-	
-	public void initializeServer(){
-		nodes = new ArrayList<SHACNode>();
-	}
-	
-	public void createAndListenSocket() 
-    {	 	
+
+	public void createAndListenSocket() {
 		while (true) {
+
 			try {
+				System.out.println("Server");
 				DatagramSocket socket = new DatagramSocket(9649);
 				byte[] incomingData = new byte[1024];
 				DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
-				
 				socket.receive(incomingPacket);
-				SHACData data = SHACProtocol.decodePacketData(incomingPacket.getData());
 
-				SHACNode sender = new SHACNode(incomingPacket.getAddress(), new Date());				
-				data.nodes.add(sender);
+				SHACData data = SHACProtocol.decodePacketData(incomingPacket.getData());
+				SHACNode sender = new SHACNode(incomingPacket.getAddress(), new Date());
+
+				data.dataNodes.add(sender);
 
 				boolean listChanged = false;
 				if (data.nodeTypeFlag == NodeType.CLIENT) {
-					for (SHACNode newNode : (SHACNode[]) data.nodes.toArray()) {
-						if (!nodes.contains(newNode)) {
-							this.nodes.add(newNode);
-							listChanged = true;
-						} else {
-							SHACNode oldNode = this.nodes.get(this.nodes.indexOf(newNode));
-							if (oldNode.isAvailable != newNode.isAvailable) {
+					for (SHACNode receivedNode : data.dataNodes) {
+						if (nodes.contains(receivedNode)) {
+							SHACNode oldNode = this.nodes.get(this.nodes.indexOf(receivedNode));
+							if (oldNode.isAvailable != receivedNode.isAvailable) {
 								listChanged = true;
 							}
-							this.nodes.set(this.nodes.indexOf(oldNode), newNode);
+							this.nodes.set(this.nodes.indexOf(oldNode), receivedNode);
+						} else {
+							this.nodes.add(receivedNode);
+							listChanged = true;
 						}
 					}
 				}
-				if (!listChanged) {
+				if (listChanged) {
 					sendUpdates();
 				}
 			} catch (UnknownHostException e) {
@@ -72,31 +72,57 @@ public class SHACServer extends Thread{
 			}
 		}
 	}
-	
-    private void sendUpdates() {
-        for (SHACNode node : (SHACNode[]) nodes.toArray()) {
-            // Send all updates to all clients your full list of peers
-            try {
-                SHACData update = new SHACData(nodes.size(), NodeType.CLIENT);
-                update.nodes = nodes;
-                byte[] data = SHACProtocol.encodePacketData(update);
-                DatagramPacket sendPacket = new DatagramPacket(data, data.length, node.ip, 9876);
-                socket.send(sendPacket);
-                System.out.println("Message sent to client");
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            } catch (SocketException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }    
-    
-    
-    
-    public static void main(String[] args) {  
-            SHACServer server = new SHACServer();
-            server.createAndListenSocket();
-    }    
+
+	private void sendUpdates() {
+		for (SHACNode node : (SHACNode[]) nodes.toArray()) {
+			// Send all updates to all clients your full list of peers
+			try {
+				SHACData update = new SHACData(nodes.size(), NodeType.CLIENT);
+				update.dataNodes = nodes;
+				byte[] data = SHACProtocol.encodePacketData(update);
+				DatagramPacket sendPacket = new DatagramPacket(data, data.length, node.ip, 9876);
+				socket.send(sendPacket);
+				System.out.println("Message sent to client");
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (SocketException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void createAndRunTimerChecker(){
+    		while(true) {
+    			System.out.println("TimerChecker");
+    			try{
+    				if(nodes.size() > 0) {
+    					for (int i = 0; i < nodes.size(); i++) {
+    						Date then = nodes.get(i).timestamp;
+    						long oldTime = then.getTime();
+
+    						Date now = new Date();
+    						long newTime = now.getTime();
+    						if (newTime - oldTime > 3000) {
+    							nodes.get(i).isAvailable = false;
+    							sendUpdates();
+    						}
+    					}
+    				}
+    			}
+    			catch(NullPointerException e){
+    				System.out.println("No local data found");
+    			}
+    			
+    		}
+    }
+
+	public static void main(String[] args) {
+		
+		SHACServer server = new SHACServer("ServerStart");
+		server.start();
+		SHACServer timerChecker = new SHACServer("TimerChecker");
+		timerChecker.start();
+	}
 }
