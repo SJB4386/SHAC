@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.ArrayList;
 import java.net.*;
-import java.time.*;
 import SHAC.protocol.*;
 
 public class SHACServer extends Thread {
 
 	private String threadName;
 	private DatagramSocket socket;
-	public ArrayList<SHACNode> nodes;
+	public ArrayList<SHACNode> serverNodes;
 
 	SHACServer(String command) {
 		threadName = command;
@@ -39,7 +38,7 @@ public class SHACServer extends Thread {
 				byte[] incomingData = new byte[1024];
 				DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
 				socket.receive(incomingPacket);
-				
+					
 				System.out.println("Data Recieved");
 				SHACData data = SHACProtocol.decodePacketData(incomingPacket.getData());
 				SHACNode sender = new SHACNode(incomingPacket.getAddress(), new Date());
@@ -49,14 +48,14 @@ public class SHACServer extends Thread {
 				boolean listChanged = false;
 				if (data.nodeTypeFlag == NodeType.CLIENT) {
 					for (SHACNode receivedNode : data.dataNodes) {
-						if (nodes.contains(receivedNode)) {
-							SHACNode oldNode = this.nodes.get(this.nodes.indexOf(receivedNode));
+						if (serverNodes.contains(receivedNode)) {
+							SHACNode oldNode = this.serverNodes.get(this.serverNodes.indexOf(receivedNode));
 							if (oldNode.isAvailable != receivedNode.isAvailable) {
 								listChanged = true;
 							}
-							this.nodes.set(this.nodes.indexOf(oldNode), receivedNode);
+							this.serverNodes.set(this.serverNodes.indexOf(oldNode), receivedNode);
 						} else {
-							this.nodes.add(receivedNode);
+							this.serverNodes.add(receivedNode);
 							listChanged = true;
 						}
 					}
@@ -75,11 +74,11 @@ public class SHACServer extends Thread {
 	}
 
 	private void sendUpdates() {
-		for (SHACNode node : (SHACNode[]) nodes.toArray()) {
+		for (SHACNode node : (SHACNode[]) serverNodes.toArray()) {
 			// Send all updates to all clients your full list of peers
 			try {
-				SHACData update = new SHACData(nodes.size(), NodeType.CLIENT);
-				update.dataNodes = nodes;
+				SHACData update = new SHACData(serverNodes.size(), NodeType.CLIENT);
+				update.dataNodes = serverNodes;
 				byte[] data = SHACProtocol.encodePacketData(update);
 				DatagramPacket sendPacket = new DatagramPacket(data, data.length, node.ip, SHACProtocol.SHAC_SOCKET);
 				socket.send(sendPacket);
@@ -97,15 +96,15 @@ public class SHACServer extends Thread {
 	public void createAndRunTimerChecker(){
     		while(true) {
     			try{
-    				if(nodes.size() > 0) {
-    					for (int i = 0; i < nodes.size(); i++) {
-    						Date then = nodes.get(i).timestamp;
+    				if(serverNodes.size() > 0) {
+    					for (int i = 0; i < serverNodes.size(); i++) {
+    						Date then = serverNodes.get(i).timestamp;
     						long oldTime = then.getTime();
 
     						Date now = new Date();
     						long newTime = now.getTime();
     						if (newTime - oldTime > 3000) {
-    							nodes.get(i).isAvailable = false;
+    							serverNodes.get(i).isAvailable = false;
     							sendUpdates();
     						}
     					}
