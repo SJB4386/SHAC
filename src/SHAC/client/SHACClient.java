@@ -80,7 +80,7 @@ public class SHACClient extends Thread {
                 DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
                 socket.receive(incomingPacket);
                 SHACData data = SHACProtocol.decodePacketData(incomingPacket.getData());
-                if (data.nodeTypeFlag == NodeType.SERVER) {
+                if (data.nodeTypeFlag == NodeType.SERVER || data.nodeTypeFlag == NodeType.PEER) {
                     nodes = data.dataNodes;
                 }
                 System.out.println("Received availability update from server.");

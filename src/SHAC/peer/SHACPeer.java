@@ -123,21 +123,20 @@ public class SHACPeer extends Thread {
                 data.dataNodes.add(sender);
 
                 boolean listChanged = false;
-                if (data.nodeTypeFlag == NodeType.PEER) {
-                    for (SHACNode receivedNode : data.dataNodes) {
-                        if (nodes.contains(receivedNode)) {
-                            SHACNode oldNode = this.nodes.get(this.nodes.indexOf(receivedNode));
-                            if (oldNode.isAvailable != receivedNode.isAvailable) {
-                                listChanged = true;
-                            }
-                            this.nodes.set(this.nodes.indexOf(oldNode), receivedNode);
-                        } else {
-                            this.nodes.add(receivedNode);
+                for (SHACNode receivedNode : data.dataNodes) {
+                    if (nodes.contains(receivedNode)) {
+                        SHACNode oldNode = this.nodes.get(this.nodes.indexOf(receivedNode));
+                        if (oldNode.isAvailable != receivedNode.isAvailable) {
                             listChanged = true;
                         }
-                        schedulePrune(receivedNode);
+                        this.nodes.set(this.nodes.indexOf(oldNode), receivedNode);
+                    } else {
+                        this.nodes.add(receivedNode);
+                        listChanged = true;
                     }
+                    schedulePrune(receivedNode);
                 }
+                
                 if (listChanged) {
                     sendUpdates();
                 }
