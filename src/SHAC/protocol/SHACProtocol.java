@@ -16,6 +16,11 @@ public class SHACProtocol {
     public static final int IP_LENGTH = 4;
     public static final int TIMESTAMP_LENGTH = 8;
 
+    /**
+     * Encodes data to send per the SHAC protocol into a form suitable for transport
+     * @param packetData The data to be sent
+     * @return a byte[] that is formatted per the SHAC protocol
+     */
     public static byte[] encodePacketData(SHACData packetData) {
         byte[] encodedVer = SHACData.CURRENT_VERSION.getBytes();
         byte[] encodedLength = { (byte) packetData.nodeCount };
@@ -36,6 +41,11 @@ public class SHACProtocol {
         return encodedPacket;
     }
 
+    /**
+     * Decodes data received per the SHAC protocol
+     * @param packetData The data received 
+     * @return a SHACData object containing all of the information decoded from the input
+     */
     public static SHACData decodePacketData(byte[] packetData) {
         SHACData decodedPacket;
         int packetDataIndex = 0;
