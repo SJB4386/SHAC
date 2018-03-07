@@ -13,8 +13,7 @@ public class SHACData {
         this.version = CURRENT_VERSION;
         this.nodeCount = nodeCount;
         this.nodeTypeFlag = nodeTypeFlag;
-        if(nodeCount > 0)
-            dataNodes = new ArrayList<SHACNode>();
+        dataNodes = new ArrayList<SHACNode>();
     }
     
     public void setVersion(String version) {

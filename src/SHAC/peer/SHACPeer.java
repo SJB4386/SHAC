@@ -130,7 +130,7 @@ public class SHACPeer extends Thread {
         for (SHACNode nodeToSendTo : peerNodes) {
             // Send all known peers your full list of peers
             try {
-                update = new SHACData(peerNodes.size(), NodeType.PEER);
+                update = new SHACData(peerNodes.size() - 1, NodeType.PEER);
                 
                 for(int i = 0; i < peerNodes.size(); i++) {               		
                 		if(!peerNodes.get(i).equals(nodeToSendTo))
