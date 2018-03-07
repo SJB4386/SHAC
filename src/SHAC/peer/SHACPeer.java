@@ -61,6 +61,7 @@ public class SHACPeer extends Thread {
     }    
     
     private void schedulePrune(SHACNode node) {
+        timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
                 pruneNode(node);
@@ -79,16 +80,19 @@ public class SHACPeer extends Thread {
         if (changed) {
             sendUpdates();
         }
+        timer.purge();
     }
 
     private void startSendingUpdates() {
         // Send an update to all peers, then set a timer to do it again
         sendUpdates();
+        timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
                 startSendingUpdates();
             }
         }, rand.nextInt(30) * 1000);
+        timer.purge();
     }
 
     private void sendUpdates() {
