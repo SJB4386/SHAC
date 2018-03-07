@@ -9,14 +9,11 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import SHAC.protocol.*;
 
 public class SHACPeer extends Thread {
 
-    //private Timer timer;
     private Random rand;
     private DatagramSocket socket;
     public ArrayList<SHACNode> peerNodes;
@@ -44,7 +41,6 @@ public class SHACPeer extends Thread {
 
     private void initializePeer() {
         lastReceived = lastSent = new Date();
-        //timer = new Timer();
         rand = new Random();
         peerNodes = new ArrayList<SHACNode>();
         try {
@@ -71,12 +67,6 @@ public class SHACPeer extends Thread {
         System.out.flush();
         printAvailableNodes();
 
-        /*timer = new Timer();
-        timer.schedule(new TimerTask() {
-            public void run() {
-                schedulePrint();
-            }
-        }, 5 * 1000);*/
         Thread thread = new Thread(){
             public void run(){
                 try {
@@ -91,12 +81,6 @@ public class SHACPeer extends Thread {
     }
     
     private void schedulePrune(SHACNode node) {
-        /*timer = new Timer();
-        timer.schedule(new TimerTask() {
-            public void run() {
-                pruneNode(node);
-            }
-        }, secondsTilDeadNode * 1000);*/
         Thread thread = new Thread(){
             public void run(){
                 try {
@@ -126,12 +110,6 @@ public class SHACPeer extends Thread {
     private void startSendingUpdates() {
         // Send an update to all peers, then set a timer to do it again
         sendUpdates();
-        /*timer = new Timer();
-        timer.schedule(new TimerTask() {
-            public void run() {
-                startSendingUpdates();
-            }
-        }, rand.nextInt(30) * 1000);*/
         Thread thread = new Thread(){
             public void run(){
                 try {
