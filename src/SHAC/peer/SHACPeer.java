@@ -87,6 +87,7 @@ public class SHACPeer extends Thread {
 
     private void startSendingUpdates() {
         // Send an update to all peers, then set a timer to do it again
+        printAvailableNodes();
         sendUpdates();
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -141,7 +142,9 @@ public class SHACPeer extends Thread {
                         this.peerNodes.add(receivedNode);
                         listChanged = true;
                     }
-                    schedulePrune(receivedNode);
+                    if (receivedNode.isAvailable) {
+                        schedulePrune(receivedNode);
+                    }
                 }
                 
                 if (listChanged) {
