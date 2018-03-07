@@ -19,7 +19,7 @@ public class SHACPeer extends Thread {
     private Timer timer;
     private Random rand;
     private DatagramSocket socket;
-    public ArrayList<SHACNode> nodes;
+    public ArrayList<SHACNode> peerNodes;
     
     private static final int secondsTilDeadNode = 30;
 
@@ -32,7 +32,7 @@ public class SHACPeer extends Thread {
         initializePeer();
         for (String peer : firstPeers) {
             try {
-                nodes.add(new SHACNode(InetAddress.getByName(peer), new Date()));
+                peerNodes.add(new SHACNode(InetAddress.getByName(peer), new Date()));
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
@@ -42,7 +42,7 @@ public class SHACPeer extends Thread {
     private void initializePeer() {
         timer = new Timer();
         rand = new Random();
-        nodes = new ArrayList<SHACNode>();
+        peerNodes = new ArrayList<SHACNode>();
         try {
             socket = new DatagramSocket(SHACProtocol.SHAC_SOCKET);
         } catch (SocketException e) {
@@ -92,15 +92,16 @@ public class SHACPeer extends Thread {
     }
 
     private void sendUpdates() {
-        for (SHACNode node : nodes) {
+        SHACData update = null;
+        for (SHACNode node : peerNodes) {
             // Send all known peers your full list of peers
             try {
-                SHACData update = new SHACData(nodes.size(), NodeType.PEER);
-                update.dataNodes = nodes;
-                byte[] data = SHACProtocol.encodePacketData(update);
-                DatagramPacket sendPacket = new DatagramPacket(data, data.length, node.ip, SHACProtocol.SHAC_SOCKET);
+                update = new SHACData(peerNodes.size(), NodeType.PEER);
+                update.dataNodes = peerNodes;
+                byte[] updateData = SHACProtocol.encodePacketData(update);
+                DatagramPacket sendPacket = new DatagramPacket(updateData, updateData.length, node.ip, SHACProtocol.SHAC_SOCKET);
                 socket.send(sendPacket);
-                System.out.println("Message sent from client");
+                System.out.printf("Sending:\n%s", update.toString());
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             } catch (SocketException e) {
@@ -117,21 +118,21 @@ public class SHACPeer extends Thread {
                 byte[] incomingData = new byte[1024];
                 DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
                 socket.receive(incomingPacket);
-                SHACData data = SHACProtocol.decodePacketData(incomingPacket.getData());
+                SHACData receivedData = SHACProtocol.decodePacketData(incomingPacket.getData());
 
                 SHACNode sender = new SHACNode(incomingPacket.getAddress(), new Date());
-                data.dataNodes.add(sender);
+                receivedData.dataNodes.add(sender);
 
                 boolean listChanged = false;
-                for (SHACNode receivedNode : data.dataNodes) {
-                    if (nodes.contains(receivedNode)) {
-                        SHACNode oldNode = this.nodes.get(this.nodes.indexOf(receivedNode));
+                for (SHACNode receivedNode : receivedData.dataNodes) {
+                    if (peerNodes.contains(receivedNode)) {
+                        SHACNode oldNode = peerNodes.get(peerNodes.indexOf(receivedNode));
                         if (oldNode.isAvailable != receivedNode.isAvailable) {
                             listChanged = true;
                         }
-                        this.nodes.set(this.nodes.indexOf(oldNode), receivedNode);
+                        peerNodes.set(peerNodes.indexOf(oldNode), receivedNode);
                     } else {
-                        this.nodes.add(receivedNode);
+                        this.peerNodes.add(receivedNode);
                         listChanged = true;
                     }
                     schedulePrune(receivedNode);
@@ -154,7 +155,7 @@ public class SHACPeer extends Thread {
     public void printAvailableNodes() {
         // Return status of each node. Change return type to what's appropriate
         System.out.println("Available nodes:");
-        for (SHACNode n : nodes) {
+        for (SHACNode n : peerNodes) {
             System.out.println(n.toString());
         }
     }
