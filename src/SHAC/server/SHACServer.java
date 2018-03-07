@@ -35,11 +35,12 @@ public class SHACServer extends Thread {
 
 			try {
 				System.out.println("Server");
-				DatagramSocket socket = new DatagramSocket(9649);
+				DatagramSocket socket = new DatagramSocket(SHACProtocol.SHAC_SOCKET);
 				byte[] incomingData = new byte[1024];
 				DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
 				socket.receive(incomingPacket);
-
+				
+				System.out.println("Data Recieved");
 				SHACData data = SHACProtocol.decodePacketData(incomingPacket.getData());
 				SHACNode sender = new SHACNode(incomingPacket.getAddress(), new Date());
 
@@ -80,7 +81,7 @@ public class SHACServer extends Thread {
 				SHACData update = new SHACData(nodes.size(), NodeType.CLIENT);
 				update.dataNodes = nodes;
 				byte[] data = SHACProtocol.encodePacketData(update);
-				DatagramPacket sendPacket = new DatagramPacket(data, data.length, node.ip, 9876);
+				DatagramPacket sendPacket = new DatagramPacket(data, data.length, node.ip, SHACProtocol.SHAC_SOCKET);
 				socket.send(sendPacket);
 				System.out.println("Message sent to client");
 			} catch (UnknownHostException e) {
@@ -95,7 +96,6 @@ public class SHACServer extends Thread {
 
 	public void createAndRunTimerChecker(){
     		while(true) {
-    			System.out.println("TimerChecker");
     			try{
     				if(nodes.size() > 0) {
     					for (int i = 0; i < nodes.size(); i++) {
@@ -112,7 +112,6 @@ public class SHACServer extends Thread {
     				}
     			}
     			catch(NullPointerException e){
-    				System.out.println("No local data found");
     			}
     			
     		}
