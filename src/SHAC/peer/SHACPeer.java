@@ -117,13 +117,18 @@ public class SHACPeer extends Thread {
     private void sendUpdates() {
         lastSent = new Date();
         SHACData update = null;
-        for (SHACNode node : peerNodes) {
+        for (SHACNode nodeToSendTo : peerNodes) {
             // Send all known peers your full list of peers
             try {
                 update = new SHACData(peerNodes.size(), NodeType.PEER);
-                update.dataNodes = peerNodes;
+                
+                for(int i = 0; i < peerNodes.size(); i++) {               		
+                		if(!peerNodes.get(i).equals(nodeToSendTo))
+                			update.dataNodes.add(peerNodes.get(i));
+                }
+                               
                 byte[] updateData = SHACProtocol.encodePacketData(update);
-                DatagramPacket sendPacket = new DatagramPacket(updateData, updateData.length, node.ip, SHACProtocol.SHAC_SOCKET);
+                DatagramPacket sendPacket = new DatagramPacket(updateData, updateData.length, nodeToSendTo.ip, SHACProtocol.SHAC_SOCKET);
                 socket.send(sendPacket);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
