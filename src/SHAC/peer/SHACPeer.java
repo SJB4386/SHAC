@@ -168,12 +168,13 @@ public class SHACPeer extends Thread {
                         if (oldNode.isAvailable != receivedNode.isAvailable) {
                             listChanged = true;
                         }
-                        peerNodes.set(peerNodes.indexOf(oldNode), receivedNode);
+                        if (receivedNode.isAvailable && receivedNode.timestamp.after(oldNode.timestamp)) {
+                            peerNodes.set(peerNodes.indexOf(oldNode), receivedNode);
+                            schedulePrune(receivedNode);
+                        }
                     } else {
                         this.peerNodes.add(receivedNode);
                         listChanged = true;
-                    }
-                    if (receivedNode.isAvailable) {
                         schedulePrune(receivedNode);
                     }
                     lastReceived = new Date();
