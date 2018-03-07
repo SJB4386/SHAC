@@ -196,8 +196,17 @@ public class SHACPeer extends Thread {
         // Return status of each node. Change return type to what's appropriate
         System.out.println("Last sent a packet at " + lastSent.toString() +".");
         System.out.println("Available nodes as of " + lastReceived.toString() +":");
-        for (SHACNode n : peerNodes) {
-            System.out.println(n.toString());
+        try {
+            for (SHACNode n : peerNodes) {
+                System.out.println(n.toString());
+            }
+        } catch (Exception e) {
+            try {
+                sleep(100);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+            printAvailableNodes();
         }
     }
 
