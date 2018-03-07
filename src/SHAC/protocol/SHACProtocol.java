@@ -72,10 +72,14 @@ public class SHACProtocol {
                 packetDataIndex += IP_LENGTH;
                 nodeTimestamp = new Date(bytesToLong(Arrays.copyOfRange(packetData, packetDataIndex, packetDataIndex + TIMESTAMP_LENGTH)));
                 packetDataIndex += TIMESTAMP_LENGTH;
-                if(packetData[packetDataIndex] > 0) 
+                if(packetData[packetDataIndex] > 0) {
                     nodeAvailability = true;
-                else
+                    packetDataIndex += AVAILABLE.length;
+                }
+                else{
                     nodeAvailability = false;
+                    packetDataIndex += UNAVAILABLE.length;
+                }
                 decodedPacket.dataNodes.add(new SHACNode(nodeAddress, nodeTimestamp));
                 decodedPacket.dataNodes.get(i).isAvailable = nodeAvailability;
             } catch (UnknownHostException e) {
