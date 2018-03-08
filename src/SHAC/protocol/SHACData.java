@@ -9,6 +9,11 @@ public class SHACData {
     public NodeType nodeTypeFlag;
     public ArrayList<SHACNode> dataNodes;
     
+    /**
+     * Constructs SHACData with the CURRENT_VERSION
+     * @param nodeCount the number of nodes that will be in this SHACData
+     * @param nodeTypeFlag the nodeType this data identifies as
+     */
     public SHACData(int nodeCount, NodeType nodeTypeFlag) {
         this.version = CURRENT_VERSION;
         this.nodeCount = nodeCount;

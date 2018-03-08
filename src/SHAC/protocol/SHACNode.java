@@ -12,6 +12,12 @@ public class SHACNode {
     private SimpleDateFormat dateFormat;
     
     
+    /**
+     * Constructs a SHACNode with an ip and timestamp.
+     * This construction assumes the node is available
+     * @param ip The IP of the node
+     * @param timestamp The last time the node was seen
+     */
     public SHACNode(InetAddress ip, Date timestamp) {
         this.ip = ip;
         this.timestamp = timestamp;
