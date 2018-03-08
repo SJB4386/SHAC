@@ -21,7 +21,7 @@ public class SHACPeer extends Thread {
     
     private static final int secondsTilDeadNode = 30;
     
-    /*
+    /**
      * SHACPeer() is a default object that initializes peer. 
      */
 
@@ -29,7 +29,7 @@ public class SHACPeer extends Thread {
         initializePeer();
     }
 
-    /*
+    /**
      * SHACPeer(String[] firstPeers) initializes a SHACPeer
      * which adds the first peer to the local peer's list 
      * of peer nodes. 
@@ -48,7 +48,7 @@ public class SHACPeer extends Thread {
         }
     }
 
-    /*
+    /**
      * initializePeer() creates the initializes all of the important fields for 
      * the peer class. Most notably this is where SHACPeer intitializes the 
      * DatagramSocket which is the UDP connection with the rest of the SHAC
@@ -65,7 +65,7 @@ public class SHACPeer extends Thread {
         }
     }
     
-    /*
+    /**
      * runPeer() Launches the listening thread. This allows peer to act as a server as
      * well as a client. runPeer() then begins sending updates to all of its peers and 
      * prints out its own internal list using the scedulePrint() method.
@@ -78,7 +78,7 @@ public class SHACPeer extends Thread {
         schedulePrint();
     }
 
-    /*
+    /**
      * run() is called whenever a new SHACPeer thread is created. 
      * It runs the listenForUpdates() method. 
      */
@@ -87,7 +87,7 @@ public class SHACPeer extends Thread {
         listenForUpdates();
     }    
     
-    /*
+    /**
      * schedulePrint() prints the list of nodes whenever there is a change as well as periodically. 
      * The thread sleep in the try block is used to prevent a printing while the list of nodes is
      * updating.  
@@ -111,7 +111,7 @@ public class SHACPeer extends Thread {
         thread.start();
     }
     
-    /*
+    /**
      * shedulePrune(SHACNode node) is how the SHAC protocol determines when to declare a peer
      * unavailable. schedulePrune also uses the list of nodes so it uses a sleep to prevent 
      * race conditions. Note the actual pruning happens in pruneNode() not schedulePrune().  
@@ -131,8 +131,8 @@ public class SHACPeer extends Thread {
         thread.start();
     }
     
-    /*
-     * pruneNode(SHACNode node) changes a node from available to unavailable. Weather 
+    /**
+     * pruneNode(SHACNode node) changes a node from available to unavailable. Whether 
      * to prune or not is determined by the node's time stamp and the current time. If 
      * the current time - the node's time is >= to 30 seconds then the node is declared 
      * unavailable. 
@@ -151,7 +151,7 @@ public class SHACPeer extends Thread {
         }
     }
 
-    /*
+    /**
      * startSendingUpdates() firsts calls sendUpdates to make sure all other peers are aware 
      * of the local peer's availability. Then it schedules when to send the next update, a
      * random interval between 0 and 30 seconds. 
@@ -173,7 +173,7 @@ public class SHACPeer extends Thread {
         thread.start();
     }
     
-    /*
+    /**
      * sendUpdates() is how SHACPeers communicate that they are still alive as well as sending
      * out lists of peers to other nodes. The list is then used to add new peers to the SHAC
      * network. 
@@ -205,10 +205,10 @@ public class SHACPeer extends Thread {
         }
     }
     
-    /* 
+    /**
      * listenForUpdates() is how the peer works like a UDP server. listenForUpdates() begins a thread that readies for an incoming 
-     * packet of SHACData and waits to receive it. After receiving the data listenForUpdates then checks to see if an update has 
-     * occurred. If a changes has occurred then the list of peers is changed and the update is sent out to all other known peers. 
+     * packet of SHACData and waits to receive it. After receiving the data, listenForUpdates then checks to see if an update has 
+     * occurred. If a changes has occurred, then the list of peers is changed and the update is sent out to all other known peers. 
      * 
      */
 
@@ -255,7 +255,7 @@ public class SHACPeer extends Thread {
         }
     }
 
-    /*
+    /**
      * printAvailableNodes() prints the list of nodes that is contained in peerNodes. 
      */
     
