@@ -3,6 +3,7 @@
 \usepackage[letterpaper,top=1in,bottom=1in,left=1in,right=1in]{geometry}
 \usepackage[parfill]{parskip}
 \usepackage{listings}
+\usepackage{arydshln}
 
 
 \title{Super-Packets High-Availability Cluster Project}
@@ -16,6 +17,33 @@
 
 \begin{doublespace}
 \section{How This Works}
+
+\subsection{Header Structure}
+\begin{center}
+\textbf{SHAC 1.0}
+\begin{tabular}{|c|c|c|}
+\hline
+Field & Length (bytes) & Description \\
+\hline
+VERSION & 6 & The version of SHAC the packet originated from \\
+\hline
+NODE\_COUNT & 1 & The number of nodes contained in the packet \\
+\hline
+ &  & Identifiers for the type of node that sent the packet.\\
+FLAGS & 1 & The flags are CLIENT, SERVER, and PEER \\ 
+ & & in this order where CLIENT is the LSB \\
+\hline
+NODES & $13*$NODE\_COUNT& \\
+\hdashline
+IP & 4 & The IPv4 address of the node \\
+\hdashline
+TIMESTAMP & 8 & UNIX timestamp which give the last time the sender\\
+& & received a packet from the node \\
+\hdashline
+AVAILABILITY & 1 & The status of the node, defined by the LSB \\
+\hline
+\end{tabular}
+\end{center}
 
 \subsection{Client-Server}
 
