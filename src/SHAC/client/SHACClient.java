@@ -3,6 +3,7 @@ package SHAC.client;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -14,6 +15,8 @@ public class SHACClient extends Thread {
     private DatagramSocket socket;
     public ArrayList<SHACNode> clientNodes;
     public String serverIP;
+    public Date lastReceived, lastSent;
+
 
     public SHACClient() {
         serverIP = "localhost";
@@ -26,6 +29,7 @@ public class SHACClient extends Thread {
     }
 
     private void initializeClient() {
+        lastReceived = lastSent = new Date();
         timer = new Timer();
         rand = new Random();
         clientNodes = new ArrayList<SHACNode>();
@@ -39,6 +43,26 @@ public class SHACClient extends Thread {
     private void runClient() {
         start();
         startSendingUpdates();
+        //Periodically print list
+        schedulePrint();
+    }
+    
+    private void schedulePrint() {
+        System.out.print("\n\n\n\n\n\n\n\n");
+        System.out.flush();
+        printAvailableNodes();
+
+        Thread thread = new Thread(){
+            public void run(){
+                try {
+                    sleep(5 * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                schedulePrint();
+            }
+          };
+        thread.start();
     }
 
     public void run() {
@@ -63,6 +87,7 @@ public class SHACClient extends Thread {
             byte[] updateData = SHACProtocol.encodePacketData(update);
             DatagramPacket sendPacket = new DatagramPacket(updateData, updateData.length, IPAddress, SHACProtocol.SHAC_SOCKET);
             socket.send(sendPacket);
+            lastSent = new Date();
             System.out.println("Message sent from client");
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -83,6 +108,7 @@ public class SHACClient extends Thread {
                 if (receivedData.nodeTypeFlag == NodeType.SERVER || receivedData.nodeTypeFlag == NodeType.PEER) {
                     clientNodes = receivedData.dataNodes;
                 }
+                lastReceived = new Date();
                 System.out.println("Received availability update from server.");
             } catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -96,9 +122,19 @@ public class SHACClient extends Thread {
 
     public void printAvailableNodes() {
         // Return status of each node. Change return type to what's appropriate
-        System.out.println("Available nodes:");
-        for (SHACNode n : clientNodes) {
-            System.out.println(n.toString());
+        System.out.println("Last sent a packet at " + lastSent.toString() +".");
+        System.out.println("Available nodes as of " + lastReceived.toString() +":");
+        try {
+            for (SHACNode n : clientNodes) {
+                System.out.println(n.toString());
+            }
+        } catch (Exception e) {
+            try {
+                sleep(100);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+            printAvailableNodes();
         }
     }
 
