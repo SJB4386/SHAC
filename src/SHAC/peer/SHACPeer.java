@@ -22,7 +22,7 @@ public class SHACPeer extends Thread {
     private static final int secondsTilDeadNode = 30;
     
     /**
-     * SHACPeer() is a default object that initializes peer. 
+     * SHACPeer() is a default object that initializes a peer in a HAC. 
      */
 
     public SHACPeer() {
@@ -32,7 +32,7 @@ public class SHACPeer extends Thread {
     /**
      * SHACPeer(String[] firstPeers) initializes a SHACPeer
      * which adds the first peer to the local peer's list 
-     * of peer nodes. 
+     * of peer nodes.
      */
     public SHACPeer(String[] firstPeers) {
         initializePeer();

@@ -5,19 +5,18 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 import SHAC.protocol.*;
 
 public class SHACClient extends Thread {
-    private Timer timer;
     private Random rand;
     private DatagramSocket socket;
     public ArrayList<SHACNode> clientNodes;
     public String serverIP;
     public Date lastReceived, lastSent;
 
-
+    /**
+     * SHACClient() is a default object that initializes a client in a HAC. 
+     */
     public SHACClient() {
         serverIP = "localhost";
         initializeClient();
@@ -28,9 +27,9 @@ public class SHACClient extends Thread {
         initializeClient();
     }
 
+    
     private void initializeClient() {
         lastReceived = lastSent = new Date();
-        timer = new Timer();
         rand = new Random();
         clientNodes = new ArrayList<SHACNode>();
         try {
@@ -40,6 +39,9 @@ public class SHACClient extends Thread {
         }
     }
 
+    /**
+     * runClient starts the tasks that comprise the client.
+     */
     private void runClient() {
         start();
         startSendingUpdates();
@@ -69,16 +71,28 @@ public class SHACClient extends Thread {
         listenForUpdates();
     }
 
+    /**
+     * startSendingUpdates sends the first update, waits from 0 to 30 seconds, then repeats.
+     */
     private void startSendingUpdates() {
         // Send an update, then set a timer to do it again
         sendUpdate();
-        timer.schedule(new TimerTask() {
-            public void run() {
+        Thread thread = new Thread(){
+            public void run(){
+                try {
+                    sleep(rand.nextInt(30) * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 startSendingUpdates();
             }
-        }, rand.nextInt(30) * 1000);
+          };
+        thread.start();
     }
 
+    /**
+     * sendUpdate prepares an empty SHAC packet which will give the server its own IP.
+     */
     private void sendUpdate() {
         // Send a packet to greet server
         try {
@@ -98,6 +112,10 @@ public class SHACClient extends Thread {
         }
     }
 
+    /**
+     * listenForUpdates awaits a packet from a server, which is then decoded and assigned as
+     * the client's new availability list.
+     */
     public void listenForUpdates() {
         while (true) {
             try {
