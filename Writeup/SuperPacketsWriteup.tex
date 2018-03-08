@@ -47,15 +47,19 @@ AVAILABILITY & 1 & The status of the node, defined by the LSB \\
 
 \subsection{Client-Server}
 
-
+The Client Server works by
 
 \subsection{P2P}
 
 
 
-\section{Why This is Good Design}
+\section{The SHAC Protocol}
 
+\subsection{Pros}
+The Small High Availability Cluster Protocol has several positive traits. First off the design itself is light weight meaning it can be used on small devices that are running Java. This means that it is excellent for High Availability Clusters whose purpose might be on the IoT side of networking. Secondly while the design uses an entire byte for simplicity in the flags section, the reality is that those bits can easily be converted to be used for other purposes. Thus the SHAC protocol has the ability to grow as new use cases arise. Thirdly on the P2P side of things, each transmission sends all known packets to all other peers. That means any peer joining the network will be known by all other peers in two transmissions. The first being its initial connection to the network and the second being the peer it connected to informing the rest of the network.
 
+\subsection{Cons} 
+No protocol is a panacea and the SHAC Protocol is no different. First in P2P mode every node is connected and sends a list of its peers to every other node. In a small cluster this works well but as the cluster grows this increases the amount of traffic considerably. Secondly using a static time of 30 seconds has some drawbacks especially with UDP. 
 
 \section{Team Contributions}
 
