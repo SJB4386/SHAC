@@ -102,7 +102,7 @@ public class SHACClient extends Thread {
             DatagramPacket sendPacket = new DatagramPacket(updateData, updateData.length, IPAddress, SHACProtocol.SHAC_SOCKET);
             socket.send(sendPacket);
             lastSent = new Date();
-            System.out.println("Message sent from client");
+            //System.out.println("Message sent from client");
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (SocketException e) {
@@ -127,7 +127,7 @@ public class SHACClient extends Thread {
                     clientNodes = receivedData.dataNodes;
                 }
                 lastReceived = new Date();
-                System.out.println("Received availability update from server.");
+                //System.out.println("Received availability update from server.");
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             } catch (SocketException e) {
